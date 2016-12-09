@@ -57,15 +57,13 @@ namespace DynamicFormFlowSample.Dialogs
                 }
                 else if (_spaceshipMatches.Count > 1)
                 {
-                    ShowSelectSpaceshipPromptAsync(context);
+                    await ShowSelectSpaceshipPromptAsync(context);
                 }
                 else
                 {
                     await context.PostAsync("No spaceships found with the given criteria");
                     context.Fail(new ArgumentException("No spaceships found with the given criteria"));
                 }
-
-                context.Done(spaceship);
             }
             else
             {
@@ -97,12 +95,11 @@ namespace DynamicFormFlowSample.Dialogs
 
                 try
                 {
-                    selectedSpaceship = spaceshipData.Spaceships.First(spaceship => spaceship.Name.Equals(result));
+                    selectedSpaceship = spaceshipData.Spaceships.First(spaceship => spaceship.Name.Equals(spaceshipName));
                 }
                 catch (InvalidOperationException)
                 {
                     await context.PostAsync($"\"{spaceshipName}\" is not a valid option, please try again");
-                    ShowSelectSpaceshipPromptAsync(context);
                 }
 
                 if (selectedSpaceship != null)
@@ -110,10 +107,14 @@ namespace DynamicFormFlowSample.Dialogs
                     await context.PostAsync($"\"{spaceshipName}\" it is, great choice!");
                     context.Done(selectedSpaceship);
                 }
+                else
+                {
+                    await ShowSelectSpaceshipPromptAsync(context);
+                }
             }
         }
 
-        private async void ShowSelectSpaceshipPromptAsync(IDialogContext context)
+        private async Task ShowSelectSpaceshipPromptAsync(IDialogContext context)
         {
             if (_spaceshipMatches != null)
             {
