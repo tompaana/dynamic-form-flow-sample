@@ -115,6 +115,12 @@ namespace DynamicFormFlowSample.Models
             set;
         }
 
+        public string ImageUri
+        {
+            get;
+            set;
+        }
+
         public Spaceship()
         {
             Reset();
@@ -285,6 +291,50 @@ namespace DynamicFormFlowSample.Models
             }
 
             return true;
+        }
+
+        public string PropertiesAsFormattedString()
+        {
+            string retval = $"Size: {Size.ToString()}\r\nEngines: ";
+
+            if (Engines.Count == 0)
+            {
+                retval += "N/A";
+            }
+            else
+            {
+                for (int i = 0; i < Engines.Count; ++i)
+                {
+                    retval += Engines[i].ToString();
+
+                    if (i < Engines.Count - 1)
+                    {
+                        retval += ", ";
+                    }
+                }
+            }
+
+            retval += "\r\nWeapons: ";
+
+            if (Weapons.Count == 0)
+            {
+                retval += "N/A";
+            }
+            else
+            {
+                for (int i = 0; i < Weapons.Count; ++i)
+                {
+                    retval += Weapons[i].ToString();
+
+                    if (i < Weapons.Count - 1)
+                    {
+                        retval += ", ";
+                    }
+                }
+            }
+
+            retval += $"\r\nCrew: {Crew.ToString()}";
+            return retval;
         }
 
         public override string ToString()

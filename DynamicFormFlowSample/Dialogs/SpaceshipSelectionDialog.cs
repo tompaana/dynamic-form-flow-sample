@@ -26,7 +26,6 @@ namespace DynamicFormFlowSample.Dialogs
             _spaceshipMatches = null;
             SpaceshipData.Instance.LastSearchResults = null;
 
-            await context.PostAsync("Greetings!");
             var spaceshipSelectionForm = new FormDialog<Spaceship>(new Spaceship(), BuildSpaceshipSelectionForm, FormOptions.None);
             context.Call(spaceshipSelectionForm, OnSpaceshipSelectionFormCompleteAsync);
         }
@@ -52,7 +51,11 @@ namespace DynamicFormFlowSample.Dialogs
 
                 if (_spaceshipMatches.Count == 1)
                 {
-                    await context.PostAsync($"You've chosen \"{_spaceshipMatches[0].Name}\", well done!");
+                    IMessageActivity messageActivity = context.MakeMessage();
+                    ThumbnailCard thumbnailCard = CreateSpaceshipThumbnailCard(_spaceshipMatches[0]);
+                    messageActivity.Attachments = new List<Attachment>() { thumbnailCard.ToAttachment() };
+                    messageActivity.Text = $"You've chosen \"{_spaceshipMatches[0].Name}\", well done!";
+                    await context.PostAsync(messageActivity);
                     context.Done(_spaceshipMatches[0]);
                 }
                 else if (_spaceshipMatches.Count > 1)
@@ -104,7 +107,11 @@ namespace DynamicFormFlowSample.Dialogs
 
                 if (selectedSpaceship != null)
                 {
-                    await context.PostAsync($"\"{spaceshipName}\" it is, great choice!");
+                    IMessageActivity messageActivity = context.MakeMessage();
+                    ThumbnailCard thumbnailCard = CreateSpaceshipThumbnailCard(selectedSpaceship);
+                    messageActivity.Attachments = new List<Attachment>() { thumbnailCard.ToAttachment() };
+                    messageActivity.Text = $"\"{spaceshipName}\" it is, great choice!";
+                    await context.PostAsync(messageActivity);
                     context.Done(selectedSpaceship);
                 }
                 else
@@ -137,20 +144,45 @@ namespace DynamicFormFlowSample.Dialogs
         }
 
         /// <summary>
+        /// Creates a thumbnail card for the given spaceship.
+        /// </summary>
+        /// <param name="spaceship"></param>
+        /// <returns>A newly created thumbnail card.</returns>
+        private ThumbnailCard CreateSpaceshipThumbnailCard(Spaceship spaceship)
+        {
+            ThumbnailCard thumbnailCard = null;
+
+            if (spaceship != null)
+            {
+                thumbnailCard = new ThumbnailCard()
+                {
+                    Title = spaceship.Name,
+                    Images = new[] { new CardImage(spaceship.ImageUri) },
+                    Text = spaceship.PropertiesAsFormattedString()
+                };
+            }
+
+            return thumbnailCard;
+        }
+
+        /// <summary>
         /// Creates a carousel with the given spaceships and inserts that into the given message activity.
         /// </summary>
         /// <param name="messageActivity">The message activity to insert the carousel into.</param>
         private void CreateSpaceshipCarousel(ref IMessageActivity messageActivity, IList<Spaceship> spaceships)
         {
-            var cards = spaceships.Select(spaceship => new ThumbnailCard
+            IList<ThumbnailCard> thumbnailCards = new List<ThumbnailCard>();
+
+            foreach (Spaceship spaceship in spaceships)
             {
-                Title = spaceship.Name,
-                //Images = new[] { new CardImage(spaceship.ImageUrl) },
-                Buttons = new[] { new CardAction(type: ActionTypes.PostBack, title: "Select", value: spaceship.Name) }
-            });
+                ThumbnailCard thumbnailCard = CreateSpaceshipThumbnailCard(spaceship);
+                thumbnailCard.Buttons =
+                    new[] { new CardAction(type: ActionTypes.PostBack, title: "Select", value: spaceship.Name) };
+                thumbnailCards.Add(thumbnailCard);
+            }
 
             messageActivity.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-            messageActivity.Attachments = cards.Select(card => card.ToAttachment()).ToList();
+            messageActivity.Attachments = thumbnailCards.Select(thumbnailCard => thumbnailCard.ToAttachment()).ToList();
             messageActivity.Text = "Spaceships matching your criteria";
         }
     }

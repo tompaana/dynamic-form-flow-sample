@@ -31,6 +31,12 @@ namespace DynamicFormFlowSample.Data
             private set;
         }
 
+        /// <summary>
+        /// NOTE: This data should be session and user specific!
+        /// For the sake of simplicity this data is local here, but in real-life scenario this
+        /// would cause issues: Multiple user accessing the data simultaneously will lead to
+        /// unwanted results.
+        /// </summary>
         public IList<Spaceship> LastSearchResults
         {
             get;
@@ -75,7 +81,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Phaser, Spaceship.WeaponTypes.PhotonTorpedos },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Federation attack fighter"
+                Name = "Federation attack fighter",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -83,7 +90,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse, Spaceship.EngineTypes.Warp },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.None },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "NX Alpha"
+                Name = "NX Alpha",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -91,7 +99,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse, Spaceship.EngineTypes.Warp },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Phaser, Spaceship.WeaponTypes.PhotonTorpedos },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Enterprise (NX-01)"
+                Name = "Enterprise (NX-01)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -99,7 +108,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse, Spaceship.EngineTypes.Warp },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Phaser, Spaceship.WeaponTypes.PhotonTorpedos },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "USS Franklin (NX-326)"
+                Name = "USS Franklin (NX-326)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -107,7 +117,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse, Spaceship.EngineTypes.Warp },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Disruptor, Spaceship.WeaponTypes.PhotonTorpedos },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "IKS Toh'Kaht (Klingon attack cruiser)"
+                Name = "IKS Toh'Kaht (Klingon attack cruiser)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -115,7 +126,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Inpulse, Spaceship.EngineTypes.Warp },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Disruptor, Spaceship.WeaponTypes.PhotonTorpedos },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Scimitar (Reman warbird)"
+                Name = "Scimitar (Reman warbird)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Star_Trek_movie_logo_2009.jpg/310px-Star_Trek_movie_logo_2009.jpg"
             });
 
             // Star Wars
@@ -125,7 +137,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Laser, Spaceship.WeaponTypes.ProtonTorpedos },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "X-Wing"
+                Name = "X-Wing",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -133,7 +146,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight, Spaceship.EngineTypes.Hyper },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Laser, Spaceship.WeaponTypes.Missiles },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Millenium Falcon (YT-1300)"
+                Name = "Millenium Falcon (YT-1300)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -141,7 +155,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight, Spaceship.EngineTypes.Hyper },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Laser, Spaceship.WeaponTypes.Ion },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Home One (MC80)"
+                Name = "Home One (MC80)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -149,7 +164,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Laser, Spaceship.WeaponTypes.ProtonTorpedos },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Tie Fighter"
+                Name = "Tie Fighter",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -163,7 +179,8 @@ namespace DynamicFormFlowSample.Data
                     Spaceship.WeaponTypes.Missiles
                 },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Slave I (Firespray-31-class)"
+                Name = "Slave I (Firespray-31-class)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -176,7 +193,8 @@ namespace DynamicFormFlowSample.Data
                     Spaceship.WeaponTypes.Missiles
                 },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Star Destroyer (Imperial-class)"
+                Name = "Star Destroyer (Imperial-class)",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/1280px-Star_Wars_Logo.svg.png"
             });
 
             // Battlestar Galactica
@@ -186,7 +204,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.TurboThrust },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.KineticEnergy, Spaceship.WeaponTypes.Missiles },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Viper Mk VII"
+                Name = "Viper Mk VII",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/4/40/Battlestar_Galactica_intro.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -194,7 +213,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight, Spaceship.EngineTypes.FTL },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Batteries, Spaceship.WeaponTypes.Missiles },
                 Crew = Spaceship.CrewTypes.GoodGuys,
-                Name = "Battlestar Galactica"
+                Name = "Battlestar Galactica",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/4/40/Battlestar_Galactica_intro.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -202,7 +222,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.KineticEnergy, Spaceship.WeaponTypes.Missiles },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Cylon Raider"
+                Name = "Cylon Raider",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/4/40/Battlestar_Galactica_intro.jpg"
             });
             Spaceships.Add(new Spaceship()
             {
@@ -210,7 +231,8 @@ namespace DynamicFormFlowSample.Data
                 Engines = new List<Spaceship.EngineTypes>() { Spaceship.EngineTypes.Sublight, Spaceship.EngineTypes.FTL },
                 Weapons = new List<Spaceship.WeaponTypes>() { Spaceship.WeaponTypes.Missiles },
                 Crew = Spaceship.CrewTypes.BadGuys,
-                Name = "Cylon Basestar"
+                Name = "Cylon Basestar",
+                ImageUri = "https://upload.wikimedia.org/wikipedia/en/4/40/Battlestar_Galactica_intro.jpg"
             });
         }
     }
