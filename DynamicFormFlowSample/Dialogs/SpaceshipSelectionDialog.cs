@@ -21,6 +21,7 @@ namespace DynamicFormFlowSample.Dialogs
             BuildSpaceshipSelectionForm = buildSpaceshipSelectionForm;
         }
 
+#pragma warning disable 1998
         public async Task StartAsync(IDialogContext context)
         {
             _spaceshipMatches = null;
@@ -29,7 +30,14 @@ namespace DynamicFormFlowSample.Dialogs
             var spaceshipSelectionForm = new FormDialog<Spaceship>(new Spaceship(), BuildSpaceshipSelectionForm, FormOptions.None);
             context.Call(spaceshipSelectionForm, OnSpaceshipSelectionFormCompleteAsync);
         }
+#pragma warning restore 1998
 
+        /// <summary>
+        /// Called once the form is complete. The result will have the properties selected by the user.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         private async Task OnSpaceshipSelectionFormCompleteAsync(IDialogContext context, IAwaitable<Spaceship> result)
         {
             Spaceship spaceship = null;
@@ -45,12 +53,13 @@ namespace DynamicFormFlowSample.Dialogs
 
             if (spaceship != null)
             {
-                System.Diagnostics.Debug.WriteLine($"We've got the criteria for the ship: {spaceship.ToString()}");
+                System.Diagnostics.Debug.WriteLine($"We've got the criteria for the ship:\n{spaceship.PropertiesAsFormattedString()}");
                 SpaceshipData spaceshipData = SpaceshipData.Instance;
                 _spaceshipMatches = spaceshipData.SearchForPartialMatches(spaceship);
 
                 if (_spaceshipMatches.Count == 1)
                 {
+                    // Single match for the given property -> Choise is made!
                     IMessageActivity messageActivity = context.MakeMessage();
                     ThumbnailCard thumbnailCard = CreateSpaceshipThumbnailCard(_spaceshipMatches[0]);
                     messageActivity.Attachments = new List<Attachment>() { thumbnailCard.ToAttachment() };
@@ -60,10 +69,12 @@ namespace DynamicFormFlowSample.Dialogs
                 }
                 else if (_spaceshipMatches.Count > 1)
                 {
+                    // More than one match -> Show the available options
                     await ShowSelectSpaceshipPromptAsync(context);
                 }
                 else
                 {
+                    // Nothing found matching the given criteria
                     await context.PostAsync("No spaceships found with the given criteria");
                     context.Fail(new ArgumentException("No spaceships found with the given criteria"));
                 }
@@ -74,6 +85,12 @@ namespace DynamicFormFlowSample.Dialogs
             }
         }
 
+        /// <summary>
+        /// Called when the user selects a spaceship from the shown options.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         private async Task OnSpaceshipSelectedAsync(IDialogContext context, IAwaitable<object> result)
         {
             object awaitedResult = await result;
@@ -121,6 +138,12 @@ namespace DynamicFormFlowSample.Dialogs
             }
         }
 
+        /// <summary>
+        /// Displays the available spaceship options based on the search done after the form was
+        /// completed.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         private async Task ShowSelectSpaceshipPromptAsync(IDialogContext context)
         {
             if (_spaceshipMatches != null)

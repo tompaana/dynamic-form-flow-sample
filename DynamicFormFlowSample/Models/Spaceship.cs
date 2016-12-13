@@ -48,13 +48,13 @@ namespace DynamicFormFlowSample.Models
             BadGuys
         }
 
-        public IList<EngineTypes> Engines
+        public List<EngineTypes> Engines
         {
             get;
             set;
         }
 
-        public IList<WeaponTypes> Weapons
+        public List<WeaponTypes> Weapons
         {
             get;
             set;
@@ -67,23 +67,10 @@ namespace DynamicFormFlowSample.Models
             set;
         }
 
-        public EngineTypes Engine
-        {
-            get
-            {
-                if (Engines.Count > 0)
-                {
-                    return Engines[0];
-                }
-
-                return EngineTypes.NotDefined;
-            }
-            set
-            {
-                AddEngine(value);
-            }
-        }
-
+        /// <summary>
+        /// Additional property added to allow the selection of just one weapon
+        /// (instead of allowing multiple).
+        /// </summary>
         public WeaponTypes Weapon
         {
             get
@@ -101,7 +88,7 @@ namespace DynamicFormFlowSample.Models
             }
         }
 
-        [Optional]
+        [Optional] // Optional will add "No preference" as an option
         public CrewTypes Crew
         {
             get;
@@ -140,6 +127,22 @@ namespace DynamicFormFlowSample.Models
             }
         }
 
+        public void AddEngine(EngineTypes engineType)
+        {
+            if (!Engines.Contains(engineType))
+            {
+                Engines.Add(engineType);
+            }
+        }
+
+        public void AddWeapon(WeaponTypes weaponType)
+        {
+            if (!Weapons.Contains(weaponType))
+            {
+                Weapons.Add(weaponType);
+            }
+        }
+
         /// <summary>
         /// Tries to cast the given value to its proper type and verify its value based on
         /// the given property name.
@@ -152,7 +155,7 @@ namespace DynamicFormFlowSample.Models
         {
             if (propertyValue is IList<object>)
             {
-                // We do not handle lists
+                // We do not handle lists here
                 return propertyValue;
             }
 
@@ -194,22 +197,6 @@ namespace DynamicFormFlowSample.Models
             return verifiedValue;
         }
 
-        public void AddEngine(EngineTypes engineType)
-        {
-            if (!Engines.Contains(engineType))
-            {
-                Engines.Add(engineType);
-            }
-        }
-
-        public void AddWeapon(WeaponTypes weaponType)
-        {
-            if (!Weapons.Contains(weaponType))
-            {
-                Weapons.Add(weaponType);
-            }
-        }
-
         /// <summary>
         /// Sets the given value to the property (with the given name) of this instance.
         /// </summary>
@@ -218,11 +205,7 @@ namespace DynamicFormFlowSample.Models
         /// <returns>True, if the value was set successfully. False otherwise.</returns>
         public bool SetPropertyValue(object propertyValue, string propertyName)
         {
-            if (propertyValue is IList<object>)
-            {
-                // We do not handle lists
-                return false;
-            }
+            bool isList = (propertyValue is IList<object>);
             object verifiedValue = VerifyPropertyValue(propertyValue, propertyName);
 
             if (verifiedValue != null)
@@ -233,10 +216,46 @@ namespace DynamicFormFlowSample.Models
                         Size = (Sizes)verifiedValue;
                         break;
                     case nameof(Engines):
-                        AddEngine((EngineTypes)verifiedValue);
+                        if (isList)
+                        {
+                            foreach (object value in (propertyValue as IList<object>))
+                            {
+                                try
+                                {
+                                    AddEngine((EngineTypes)value);
+                                }
+                                catch (InvalidCastException e)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Failed to add engine: " + e.Message);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            AddEngine((EngineTypes)verifiedValue);
+                        }
+
                         break;
                     case nameof(Weapons):
-                        AddWeapon((WeaponTypes)verifiedValue);
+                        if (isList)
+                        {
+                            foreach (object value in (propertyValue as IList<object>))
+                            {
+                                try
+                                {
+                                    AddWeapon((WeaponTypes)value);
+                                }
+                                catch (InvalidCastException e)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Failed to add weapon: " + e.Message);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            AddWeapon((WeaponTypes)verifiedValue);
+                        }
+
                         break;
                     case nameof(Crew):
                         Crew = (CrewTypes)verifiedValue;
@@ -249,6 +268,32 @@ namespace DynamicFormFlowSample.Models
             }
 
             return (verifiedValue != null);
+        }
+
+        /// <summary>
+        /// Clears the value of the given property.
+        /// </summary>
+        /// <param name="propertyName">The name of the property whose value to clear.</param>
+        public void ClearPropertyValue(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case nameof(Size):
+                    Size = Sizes.NotDefined;
+                    break;
+                case nameof(Engines):
+                    Engines.Clear();
+                    break;
+                case nameof(Weapons):
+                    Weapons.Clear();
+                    break;
+                case nameof(Crew):
+                    Crew = CrewTypes.NotDefined;
+                    break;
+                case nameof(Name):
+                    Name = string.Empty;
+                    break;
+            }
         }
 
         /// <summary>

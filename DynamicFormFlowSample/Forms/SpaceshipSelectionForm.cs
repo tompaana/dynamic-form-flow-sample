@@ -3,6 +3,7 @@ using DynamicFormFlowSample.Models;
 using Microsoft.Bot.Builder.FormFlow;
 using Microsoft.Bot.Builder.FormFlow.Advanced;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace DynamicFormFlowSample.Forms
@@ -24,18 +25,27 @@ namespace DynamicFormFlowSample.Forms
                 // The following way of creating a field provides the best access to define its
                 // behavior:
                 //
+                // - SetType: If you want to explicitly define the type of the property
                 // - SetActive: Should we present this query?
                 // - SetDefine: What values will be available?
                 // - SetPrompt: How do we present the query?
                 // - SetValidate: The actions taken after response
                 //
-                .Field(new FieldReflector<Spaceship>(nameof(Spaceship.Engine))
-                    .SetType(null)
+                .Field(new FieldReflector<Spaceship>(nameof(Spaceship.Engines))
+                    .SetType(typeof(Spaceship.EngineTypes))
                     .SetActive((state) => SetFieldActive(state, nameof(Spaceship.Engines)))
                     .SetDefine(async (state, field) => await SetOptionsForFieldsAsync(state, nameof(Spaceship.Engines), field))
+                    .SetAllowsMultiple(true)
                     .SetPrompt(new PromptAttribute("What type of engines does the ship have? {||}"))
                     .SetValidate(async (state, value) => await ValidateResponseAsync(value, state, nameof(Spaceship.Engines))))
 
+                // You could also replace the field above with the following, if you have no need
+                // to define the values for the field or validate the response:
+                //.Field("Engines")
+
+                // Below we want only to allow one option. To achieve that we've defined a
+                // different property where the value is stored in (Spaceship.Weapon instead
+                // of Spaceship.Weapons).
                 .Field(new FieldReflector<Spaceship>(nameof(Spaceship.Weapon))
                     .SetActive((state) => SetFieldActive(state, nameof(Spaceship.Weapons)))
                     .SetDefine(async (state, field) => await SetOptionsForFieldsAsync(state, nameof(Spaceship.Weapons), field))
@@ -70,39 +80,40 @@ namespace DynamicFormFlowSample.Forms
         {
             Spaceship spaceshipSearchFilter = new Spaceship(spaceshipState);
             object value = Spaceship.VerifyPropertyValue(response, propertyName);
+            SpaceshipData spaceshipData = SpaceshipData.Instance;
             IList<Spaceship> matches = null;
 
             if (spaceshipSearchFilter.SetPropertyValue(value, propertyName))
             {
-                SpaceshipData spaceshipData = SpaceshipData.Instance;
                 matches = spaceshipData.SearchForPartialMatches(spaceshipSearchFilter);
-                spaceshipData.LastSearchResults = matches;
             }
 
-            bool matchesFound = (matches != null && matches.Count > 0);
-
-            if (matchesFound)
-            {
-                System.Diagnostics.Debug.WriteLine($"Value {value} for property {propertyName} is valid; we have {matches.Count} option(s) left");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Value {value} for property {propertyName} is invalid");
-            }
+            bool isValid = (matches != null && matches.Count > 0);
 
             ValidateResult validateResult = new ValidateResult
             {
-                IsValid = (matchesFound && value != null),
+                IsValid = (isValid && value != null),
                 Value = value
             };
 
             string feedbackMessage = string.Empty;
 
-            if (matches == null)
+            if (!isValid)
             {
-                feedbackMessage = $"\"{response}\" is not a valid option";
+                // Since this was an invalid option, undo the change
+                spaceshipState.ClearPropertyValue(propertyName);
+
+                string valueAsString = ValueToString(value);
+                System.Diagnostics.Debug.WriteLine($"Value {valueAsString} for property {propertyName} is invalid");
+                feedbackMessage = $"\"{valueAsString}\" is not a valid option";
             }
-            else if (matches.Count > 5)
+            else
+            {
+                // Store the search
+                spaceshipData.LastSearchResults = matches;
+            }
+
+            if (matches != null && matches.Count > 5)
             {
                 feedbackMessage = $"Still {matches.Count} options matching your criteria. Let's get some more details!";
             }
@@ -170,20 +181,18 @@ namespace DynamicFormFlowSample.Forms
                 // Clear the values to avoid duplicates since this method can be called many times
                 field.RemoveValues();
 
-                IList<string> values = OptionsLeftForProperty(spaceshipData.LastSearchResults, propertyName);
+                IList<object> values = OptionsLeftForProperty(spaceshipData.LastSearchResults, propertyName);
 
-                foreach (string value in values)
+                foreach (object value in values)
                 {
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Adding value {value} for property {propertyName} to field {field.Name}");
+                    System.Diagnostics.Debug.WriteLine($"Adding value {value} for property {propertyName} to field {field.Name}");
+                    string valueInTitleCase = CamelCaseToTitleCase(value.ToString());
 
-                        field
-                            .AddDescription(value, value)
-                            .AddTerms(value, value);
+                    field
+                        .AddDescription(value, valueInTitleCase)
+                        .AddTerms(value, valueInTitleCase);
 
-                        valuesSet = true;
-                    }
+                    valuesSet = true;
                 }
             }
             else
@@ -210,10 +219,10 @@ namespace DynamicFormFlowSample.Forms
         /// </summary>
         /// <param name="spaceshipsLeft">A list of spaceships to check the options from.</param>
         /// <param name="propertyName">The name of the property whose options to check.</param>
-        /// <returns>The options (values for property) in a string list.</returns>
-        private static IList<string> OptionsLeftForProperty(IList<Spaceship> spaceshipsLeft, string propertyName)
+        /// <returns>The options (values for property) as a list.</returns>
+        private static IList<object> OptionsLeftForProperty(IList<Spaceship> spaceshipsLeft, string propertyName)
         {
-            IList<string> options = new List<string>();
+            IList<object> options = new List<object>();
 
             foreach (Spaceship spaceship in spaceshipsLeft)
             {
@@ -222,7 +231,7 @@ namespace DynamicFormFlowSample.Forms
                     if (spaceship.Size != Spaceship.Sizes.NotDefined
                         && !options.Contains(spaceship.Size.ToString()))
                     {
-                        options.Add(spaceship.Size.ToString());
+                        options.Add(spaceship.Size);
                     }
                 }
                 else if (propertyName.Equals(nameof(Spaceship.Engines)))
@@ -232,7 +241,7 @@ namespace DynamicFormFlowSample.Forms
                         if (engineType != Spaceship.EngineTypes.NotDefined
                             && !options.Contains(engineType.ToString()))
                         {
-                            options.Add(engineType.ToString());
+                            options.Add(engineType);
                         }
                     }
                 }
@@ -243,7 +252,7 @@ namespace DynamicFormFlowSample.Forms
                         if (weaponType != Spaceship.WeaponTypes.NotDefined
                             && !options.Contains(weaponType.ToString()))
                         {
-                            options.Add(weaponType.ToString());
+                            options.Add(weaponType);
                         }
                     }
                 }
@@ -252,13 +261,81 @@ namespace DynamicFormFlowSample.Forms
                     if (spaceship.Crew != Spaceship.CrewTypes.NotDefined
                         && !options.Contains(spaceship.Crew.ToString()))
                     {
-                        options.Add(spaceship.Crew.ToString());
+                        options.Add(spaceship.Crew);
                     }
                 }
             }
 
             System.Diagnostics.Debug.WriteLine($"{options.Count} options left for property {propertyName}");
             return options;
+        }
+
+        /// <summary>
+        /// Formats the given camel case string to title case string.
+        /// Example: "TheseAreFourWords" => "These Are Four Words".
+        /// </summary>
+        /// <param name="camelCaseString">The string to format.</param>
+        /// <returns>A formatted string.</returns>
+        private static string CamelCaseToTitleCase(string camelCaseString)
+        {
+            string formatted = string.Empty;
+
+            if (!string.IsNullOrEmpty(camelCaseString))
+            {
+                int lastStartIndex = 0;
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+                for (int i = 1; i < camelCaseString.Length; ++i)
+                {
+                    bool isLastChar = (i == (camelCaseString.Length - 1));
+
+                    if (char.IsUpper(camelCaseString[i]))
+                    {
+                        formatted += textInfo.ToTitleCase(camelCaseString.Substring(lastStartIndex, (i - lastStartIndex))) + " ";
+                        lastStartIndex = i;
+
+                        if (isLastChar)
+                        {
+                            // Last char is upper - given string could be e.g. "SlaveI" - so simply add the last char
+                            formatted += camelCaseString[i];
+                        }
+                    }
+                    else if (isLastChar)
+                    {
+                        formatted += textInfo.ToTitleCase(camelCaseString.Substring(lastStartIndex, (i - lastStartIndex + 1)));
+                    }
+                }
+            }
+
+            return formatted.Trim();
+        }
+
+        /// <summary>
+        /// Helper method for displaying selected value(s) as string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static string ValueToString(object value)
+        {
+            if (value is List<object>)
+            {
+                string valuesAsString = string.Empty;
+                List<object> values = (value as List<object>);
+
+                for (int i = 0; i < values.Count; ++i)
+                {
+                    valuesAsString += values[i].ToString();
+
+                    if (i < values.Count - 1)
+                    {
+                        valuesAsString += ", ";
+                    }
+                }
+
+                return valuesAsString;
+            }
+
+            return value.ToString();
         }
     }
 }
