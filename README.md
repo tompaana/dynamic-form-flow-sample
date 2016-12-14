@@ -1,7 +1,9 @@
 # Dynamic FormFlow Sample #
 
-This sample demonstrates how to add dynamic features to form flows of a bot
-built on Microsoft Bot Framework.
+This sample demonstrates how to add dynamic features to FormFlow implementation
+of a bot built on Microsoft Bot Framework. The central points are explained in
+my blog post creatively named
+[How to Create Dynamic FormFlow](http://tomipaananen.azurewebsites.net/?p=1641).
 
 The approach implemented by this sample is especially useful for scenarios where
 the user is searching an item from an existing catalog. Instead of displaying
